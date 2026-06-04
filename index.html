@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GharTak — Ab Koi Address Confusion Nahi</title>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;800&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Baloo 2', sans-serif; background: #0f1923; color: #fff; min-height: 100vh; }
+    .app { min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding-bottom: 40px; position: relative; overflow: hidden; }
+    .bg1 { position: fixed; width: 400px; height: 400px; background: #ff6b35; border-radius: 50%; filter: blur(80px); opacity: 0.12; top: -100px; right: -100px; pointer-events: none; }
+    .bg2 { position: fixed; width: 300px; height: 300px; background: #00c896; border-radius: 50%; filter: blur(80px); opacity: 0.12; bottom: 100px; left: -80px; pointer-events: none; }
+    .header { width: 100%; padding: 28px 24px 20px; text-align: center; position: relative; z-index: 1; }
+    .logo { display: inline-flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+    .logo-icon { width: 44px; height: 44px; background: linear-gradient(135deg, #ff6b35, #ff9a35); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 22px; box-shadow: 0 4px 20px rgba(255,107,53,0.4); }
+    .logo-text { font-size: 28px; font-weight: 800; background: linear-gradient(90deg, #ff6b35, #ffb347); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .tagline { font-size: 13px; color: rgba(255,255,255,0.45); letter-spacing: 1.5px; text-transform: uppercase; font-weight: 600; }
+    .tab-bar { display: flex; background: rgba(255,255,255,0.06); border-radius: 16px; padding: 5px; margin: 10px 24px 0; gap: 4px; width: calc(100% - 48px); max-width: 420px; position: relative; z-index: 1; }
+    .tab { flex: 1; padding: 10px; border: none; background: transparent; color: rgba(255,255,255,0.45); font-family: 'Baloo 2', sans-serif; font-size: 13px; font-weight: 600; border-radius: 12px; cursor: pointer; transition: all 0.25s; }
+    .tab.active { background: linear-gradient(135deg, #ff6b35, #ff9a35); color: #fff; box-shadow: 0 4px 15px rgba(255,107,53,0.35); }
+    .card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 24px; padding: 28px 24px; margin: 20px 24px 0; width: calc(100% - 48px); max-width: 420px; position: relative; z-index: 1; }
+    .section-title { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #ff6b35; margin-bottom: 16px; }
+    .badge { display: inline-block; padding: 4px 10px; background: rgba(255,107,53,0.12); border: 1px solid rgba(255,107,53,0.25); border-radius: 20px; font-size: 11px; font-weight: 700; color: #ff6b35; margin-bottom: 16px; }
+    .btn { width: 100%; padding: 17px; border: none; border-radius: 16px; font-family: 'Baloo 2', sans-serif; font-size: 16px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: all 0.2s; }
+    .btn-orange { background: linear-gradient(135deg, #ff6b35, #ff9a35); color: #fff; box-shadow: 0 8px 25px rgba(255,107,53,0.35); }
+    .btn-orange:hover { transform: translateY(-2px); }
+    .btn-orange:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    .btn-grey { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.8); border: 1px solid rgba(255,255,255,0.12); margin-top: 12px; font-size: 14px; }
+    .btn-green { background: linear-gradient(135deg, #00c896, #00e5b0); color: #0a2a1f; box-shadow: 0 8px 25px rgba(0,200,150,0.3); margin-top: 12px; font-size: 18px; font-weight: 800; padding: 20px; }
+    .btn-green:hover { transform: translateY(-2px); }
+    .btn-red { background: rgba(255,60,60,0.15); color: #ff6060; border: 1px solid rgba(255,60,60,0.3); margin-top: 10px; font-size: 14px; }
+    .input-label { font-size: 13px; color: rgba(255,255,255,0.55); margin-bottom: 8px; display: block; font-weight: 600; }
+    .text-input { width: 100%; padding: 14px 16px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; color: #fff; font-family: 'Baloo 2', sans-serif; font-size: 15px; outline: none; margin-top: 8px; }
+    .text-input:focus { border-color: rgba(255,107,53,0.5); }
+    .text-input::placeholder { color: rgba(255,255,255,0.25); }
+    .status-box { background: rgba(0,200,150,0.08); border: 1px solid rgba(0,200,150,0.2); border-radius: 14px; padding: 16px; margin-top: 20px; display: flex; align-items: center; gap: 12px; }
+    .status-icon { width: 36px; height: 36px; background: rgba(0,200,150,0.15); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+    .status-strong { font-size: 14px; color: #00c896; display: block; margin-bottom: 3px; font-weight: 700; }
+    .status-small { font-size: 12px; color: rgba(255,255,255,0.45); }
+    .qr-wrap { display: flex; flex-direction: column; align-items: center; margin-top: 24px; padding: 24px; background: rgba(255,255,255,0.03); border-radius: 20px; border: 1px dashed rgba(255,255,255,0.1); }
+    .qr-wrap img { border-radius: 12px; border: 8px solid #fff; }
+    .qr-label { margin-top: 14px; font-size: 12px; color: rgba(255,255,255,0.35); text-align: center; }
+    .link-box { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 12px 14px; margin-top: 14px; display: flex; align-items: center; gap: 10px; }
+    .link-text { flex: 1; font-size: 12px; color: rgba(255,255,255,0.4); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .copy-btn { padding: 6px 14px; background: rgba(255,107,53,0.15); border: 1px solid rgba(255,107,53,0.3); border-radius: 8px; color: #ff6b35; font-size: 12px; font-weight: 700; cursor: pointer; font-family: 'Baloo 2', sans-serif; white-space: nowrap; }
+    .step { display: flex; align-items: flex-start; gap: 14px; padding: 14px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .step:last-child { border-bottom: none; }
+    .step-num { width: 32px; height: 32px; background: rgba(255,107,53,0.12); border: 1px solid rgba(255,107,53,0.25); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 800; color: #ff6b35; flex-shrink: 0; }
+    .step-title { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+    .step-desc { font-size: 12px; color: rgba(255,255,255,0.4); line-height: 1.5; }
+    .dest-card { background: rgba(0,200,150,0.06); border: 1px solid rgba(0,200,150,0.15); border-radius: 16px; padding: 16px; margin-bottom: 20px; }
+    .dest-label { font-size: 11px; font-weight: 700; color: #00c896; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 6px; }
+    .dest-coords { font-size: 15px; font-weight: 600; color: rgba(255,255,255,0.85); font-family: monospace; word-break: break-all; }
+    .loading { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 20px; color: rgba(255,255,255,0.5); font-size: 14px; }
+    .spinner { width: 48px; height: 48px; border: 3px solid rgba(255,107,53,0.2); border-top-color: #ff6b35; border-radius: 50%; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #00c896; color: #0a2a1f; padding: 12px 24px; border-radius: 50px; font-weight: 700; font-size: 14px; z-index: 100; display: none; }
+    .toast.show { display: block; animation: fadeUp 0.3s ease; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateX(-50%) translateY(10px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+    .hidden { display: none !important; }
+    p.desc { font-size: 14px; color: rgba(255,255,255,0.5); line-height: 1.7; margin-bottom: 20px; }
+    .hint { text-align: center; font-size: 12px; color: rgba(255,255,255,0.3); margin-top: 14px; }
+    .or-divider { text-align: center; color: rgba(255,255,255,0.25); font-size: 13px; margin: 16px 0; position: relative; }
+    .or-divider::before, .or-divider::after { content: ''; position: absolute; top: 50%; width: 42%; height: 1px; background: rgba(255,255,255,0.08); }
+    .or-divider::before { left: 0; }
+    .or-divider::after { right: 0; }
+
+    /* QR Scanner styles */
+    #qr-reader { width: 100%; border-radius: 16px; overflow: hidden; }
+    #qr-reader video { border-radius: 16px; }
+    #qr-reader img { display: none; }
+    .scanner-box { background: rgba(255,255,255,0.03); border: 2px solid rgba(255,107,53,0.3); border-radius: 20px; padding: 16px; margin-bottom: 16px; overflow: hidden; }
+    .scanner-status { text-align: center; font-size: 13px; color: rgba(255,255,255,0.4); margin-top: 10px; }
+    .scan-success { background: rgba(0,200,150,0.08); border: 1px solid rgba(0,200,150,0.25); border-radius: 14px; padding: 14px; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+  </style>
+</head>
+<body>
+<div class="app">
+  <div class="bg1"></div>
+  <div class="bg2"></div>
+
+  <div class="header">
+    <div class="logo">
+      <div class="logo-icon">🏠</div>
+      <span class="logo-text">GharTak</span>
+    </div>
+    <div class="tagline">Ab koi address confusion nahi</div>
+  </div>
+
+  <div class="tab-bar">
+    <button class="tab active" onclick="showTab('customer')">🏠 Ghar Wala</button>
+    <button class="tab" onclick="showTab('delivery')">🛵 Delivery Boy</button>
+  </div>
+
+  <!-- CUSTOMER TAB -->
+  <div id="tab-customer">
+    <div class="card">
+      <div class="badge">STEP 1</div>
+      <div class="section-title">Apni Location Save Karo</div>
+      <p class="desc">Apne ghar ke andar ya bahar khade hokar button dabaao. GPS se exact location capture ho jaayegi.</p>
+      <div id="btn-save-wrap">
+        <button class="btn btn-orange" onclick="saveLocation()">📍 Abhi Location Save Karo</button>
+      </div>
+      <div id="loading-wrap" class="loading hidden">
+        <div class="spinner"></div>
+        <span>GPS dhundh raha hai... thoda wait karo</span>
+      </div>
+      <div id="saved-wrap" class="hidden">
+        <div class="status-box">
+          <div class="status-icon">✅</div>
+          <div>
+            <span class="status-strong">Location Save Ho Gayi!</span>
+            <span class="status-small" id="coords-text"></span>
+          </div>
+        </div>
+        <label class="input-label" style="margin-top:20px;">Landmark add karo (optional)</label>
+        <input class="text-input" id="landmark-input" placeholder="Jaise: Neele gate wala ghar, SBI ATM ke paas..." oninput="updateQR()" />
+        <button class="btn btn-grey" onclick="saveLocation()">🔄 Dobara Location Lena</button>
+      </div>
+    </div>
+
+    <div class="card hidden" id="qr-card">
+      <div class="badge">STEP 2</div>
+      <div class="section-title">QR Code & Link Ready Hai!</div>
+      <div class="qr-wrap">
+        <img id="qr-img" src="" alt="QR Code" width="200" height="200" />
+        <div class="qr-label">Ye QR door pe lagao ya delivery boy ko share karo</div>
+      </div>
+      <div class="link-box">
+        <span class="link-text" id="share-link-text"></span>
+        <button class="copy-btn" onclick="copyLink()">📋 Copy</button>
+      </div>
+      <button class="btn btn-grey" style="margin-top:12px;" onclick="copyLink()">📤 WhatsApp pe Share Karo</button>
+    </div>
+
+    <div class="card" id="how-card">
+      <div class="section-title">Kaise Kaam Karta Hai?</div>
+      <div class="step"><div class="step-num">1</div><div><div class="step-title">Ghar pe khade hokar location save karo</div><div class="step-desc">GPS se exact point capture hota hai, koi address type karne ki zaroorat nahi</div></div></div>
+      <div class="step"><div class="step-num">2</div><div><div class="step-title">QR Code aur Link mil jaata hai</div><div class="step-desc">WhatsApp pe share karo, door pe chipkao, ya order note mein likho</div></div></div>
+      <div class="step"><div class="step-num">3</div><div><div class="step-title">Delivery boy scan kare</div><div class="step-desc">Direct navigation shuru, ghar ke bahar aake call kare — bas!</div></div></div>
+    </div>
+  </div>
+
+  <!-- DELIVERY TAB -->
+  <div id="tab-delivery" class="hidden">
+    <div class="card">
+      <div class="section-title">QR Code Scan Karo</div>
+
+      <!-- Scanner -->
+      <div id="scanner-start-wrap">
+        <button class="btn btn-orange" onclick="startScanner()">📷 Camera Se QR Scan Karo</button>
+      </div>
+
+      <div id="scanner-wrap" class="hidden">
+        <div class="scanner-box">
+          <div id="qr-reader"></div>
+          <div class="scanner-status">📷 Camera QR dhundh raha hai...</div>
+        </div>
+        <button class="btn btn-red" onclick="stopScanner()">✕ Scanner Band Karo</button>
+      </div>
+
+      <div id="scan-success-wrap" class="hidden">
+        <div class="scan-success">
+          <span style="font-size:24px;">✅</span>
+          <div>
+            <div style="font-size:14px; font-weight:700; color:#00c896;">QR Scan Ho Gaya!</div>
+            <div style="font-size:12px; color:rgba(255,255,255,0.45);" id="scan-result-text"></div>
+          </div>
+        </div>
+        <button class="btn btn-grey" style="margin-top:0;" onclick="resetScanner()">🔄 Dobara Scan Karo</button>
+      </div>
+
+      <div class="or-divider">ya</div>
+
+      <!-- Manual Link -->
+      <label class="input-label">Customer ka link manually paste karo</label>
+      <input class="text-input" id="delivery-input" placeholder="https://www.google.com/maps/dir/..." style="margin-top:4px;" />
+      <button class="btn btn-orange" style="margin-top:14px;" onclick="parseLink()">🗺️ Link Se Address Dhundho</button>
+    </div>
+
+    <div class="card hidden" id="nav-card">
+      <div class="dest-card">
+        <div class="dest-label">📍 Destination Mila!</div>
+        <div class="dest-coords" id="nav-coords"></div>
+      </div>
+      <button class="btn btn-green" onclick="openNavigation()">🛵 Navigation Shuru Karo</button>
+      <p class="hint">Ghar pahunchne ke baad hi call karo 📞</p>
+    </div>
+
+    <div class="card">
+      <div class="section-title">Delivery Boy Ke Liye</div>
+      <div class="step"><div class="step-num">1</div><div><div class="step-title">QR scan karo ya link paste karo</div><div class="step-desc">Customer ka QR code camera se scan karo ya WhatsApp link paste karo</div></div></div>
+      <div class="step"><div class="step-num">2</div><div><div class="step-title">Navigate dabaao</div><div class="step-desc">Google Maps seedha customer ke ghar tak le jaayega</div></div></div>
+      <div class="step"><div class="step-num">3</div><div><div class="step-title">Ghar pahuncho, tab call karo</div><div class="step-desc">Baar baar rasta poochne ki zaroorat nahi!</div></div></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast">✅ Link Copy Ho Gaya!</div>
+
+<script>
+  let savedLat = null, savedLng = null, shareLink = '';
+  let html5QrCode = null;
+
+  function showTab(name) {
+    document.getElementById('tab-customer').classList.toggle('hidden', name !== 'customer');
+    document.getElementById('tab-delivery').classList.toggle('hidden', name !== 'delivery');
+    document.querySelectorAll('.tab').forEach((t, i) => {
+      t.classList.toggle('active', (i === 0 && name === 'customer') || (i === 1 && name === 'delivery'));
+    });
+    if (name === 'customer' && html5QrCode) stopScanner();
+  }
+
+  function saveLocation() {
+    if (!navigator.geolocation) { alert('Browser location support nahi karta.'); return; }
+    document.getElementById('btn-save-wrap').classList.add('hidden');
+    document.getElementById('loading-wrap').classList.remove('hidden');
+    document.getElementById('saved-wrap').classList.add('hidden');
+    document.getElementById('qr-card').classList.add('hidden');
+    document.getElementById('how-card').classList.add('hidden');
+
+    navigator.geolocation.getCurrentPosition(
+      pos => {
+        savedLat = pos.coords.latitude.toFixed(6);
+        savedLng = pos.coords.longitude.toFixed(6);
+        document.getElementById('coords-text').textContent = savedLat + '° N, ' + savedLng + '° E';
+        document.getElementById('loading-wrap').classList.add('hidden');
+        document.getElementById('saved-wrap').classList.remove('hidden');
+        updateQR();
+      },
+      () => {
+        alert('Location allow karo — browser settings mein jaake location permission do.');
+        document.getElementById('loading-wrap').classList.add('hidden');
+        document.getElementById('btn-save-wrap').classList.remove('hidden');
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  }
+
+  function updateQR() {
+    if (!savedLat) return;
+    shareLink = 'https://www.google.com/maps/dir/?api=1&destination=' + savedLat + ',' + savedLng + '&travelmode=driving';
+    const qrData = encodeURIComponent(shareLink);
+    document.getElementById('qr-img').src = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + qrData + '&bgcolor=ffffff&color=0f1923&margin=10';
+    document.getElementById('share-link-text').textContent = shareLink;
+    document.getElementById('qr-card').classList.remove('hidden');
+  }
+
+  function copyLink() {
+    navigator.clipboard.writeText(shareLink).then(() => showToast('✅ Link Copy Ho Gaya!'));
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+  }
+
+  // QR SCANNER
+  function startScanner() {
+    document.getElementById('scanner-start-wrap').classList.add('hidden');
+    document.getElementById('scanner-wrap').classList.remove('hidden');
+    document.getElementById('scan-success-wrap').classList.add('hidden');
+
+    html5QrCode = new Html5Qrcode("qr-reader");
+    html5QrCode.start(
+      { facingMode: "environment" },
+      { fps: 10, qrbox: { width: 250, height: 250 } },
+      (decodedText) => {
+        stopScanner();
+        handleScannedResult(decodedText);
+      },
+      () => {}
+    ).catch(() => {
+      alert('Camera permission do — Settings mein jaake Chrome ko camera allow karo.');
+      resetScanner();
+    });
+  }
+
+  function stopScanner() {
+    if (html5QrCode) {
+      html5QrCode.stop().catch(() => {});
+      html5QrCode = null;
+    }
+    document.getElementById('scanner-wrap').classList.add('hidden');
+    document.getElementById('scanner-start-wrap').classList.remove('hidden');
+  }
+
+  function resetScanner() {
+    document.getElementById('scan-success-wrap').classList.add('hidden');
+    document.getElementById('scanner-start-wrap').classList.remove('hidden');
+    document.getElementById('nav-card').classList.add('hidden');
+  }
+
+  function handleScannedResult(text) {
+    document.getElementById('scan-success-wrap').classList.remove('hidden');
+    document.getElementById('scan-result-text').textContent = 'Link mil gaya!';
+    processDestination(text);
+  }
+
+  function parseLink() {
+    const input = document.getElementById('delivery-input').value.trim();
+    if (!input) { alert('Pehle link paste karo.'); return; }
+    processDestination(input);
+  }
+
+  function processDestination(input) {
+    try {
+      const url = new URL(input);
+      const dest = url.searchParams.get('destination');
+      if (dest) {
+        showNavCard(dest);
+        return;
+      }
+    } catch(e) {}
+    const m = input.match(/([-\d.]+),([-\d.]+)/);
+    if (m) { showNavCard(m[1] + ',' + m[2]); }
+    else { alert('Valid GharTak link nahi hai.'); }
+  }
+
+  function showNavCard(dest) {
+    window._navDest = dest;
+    document.getElementById('nav-coords').textContent = dest;
+    document.getElementById('nav-card').classList.remove('hidden');
+    document.getElementById('nav-card').scrollIntoView({ behavior: 'smooth' });
+  }
+
+  function openNavigation() {
+    window.open('https://www.google.com/maps/dir/?api=1&destination=' + window._navDest + '&travelmode=driving', '_blank');
+  }
+</script>
+</body>
+</html>
