@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>GharTak — Ab Koi Address Confusion Nahi</title>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;800&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Baloo 2',sans-serif;background:#0f1923;color:#fff;min-height:100vh}
+    .app{min-height:100vh;display:flex;flex-direction:column;align-items:center;padding-bottom:48px;position:relative;overflow:hidden}
+    .bg1{position:fixed;width:400px;height:400px;background:#ff6b35;border-radius:50%;filter:blur(80px);opacity:.12;top:-100px;right:-100px;pointer-events:none}
+    .bg2{position:fixed;width:300px;height:300px;background:#00c896;border-radius:50%;filter:blur(80px);opacity:.12;bottom:100px;left:-80px;pointer-events:none}
+
+    /* HEADER */
+    .header{width:100%;padding:28px 24px 16px;text-align:center;position:relative;z-index:1}
+    .logo{display:inline-flex;align-items:center;gap:10px;margin-bottom:6px}
+    .logo-icon{width:44px;height:44px;background:linear-gradient(135deg,#ff6b35,#ff9a35);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 4px 20px rgba(255,107,53,.4)}
+    .logo-text{font-size:28px;font-weight:800;background:linear-gradient(90deg,#ff6b35,#ffb347);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+    .tagline{font-size:12px;color:rgba(255,255,255,.4);letter-spacing:1.5px;text-transform:uppercase;font-weight:600}
+
+    /* TABS */
+    .tab-bar{display:flex;background:rgba(255,255,255,.06);border-radius:16px;padding:5px;margin:10px 24px 0;gap:4px;width:calc(100% - 48px);max-width:440px;position:relative;z-index:1}
+    .tab{flex:1;padding:11px;border:none;background:transparent;color:rgba(255,255,255,.4);font-family:'Baloo 2',sans-serif;font-size:13px;font-weight:600;border-radius:12px;cursor:pointer;transition:all .25s}
+    .tab.active{background:linear-gradient(135deg,#ff6b35,#ff9a35);color:#fff;box-shadow:0 4px 15px rgba(255,107,53,.35)}
+
+    /* CARDS */
+    .card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:24px;padding:24px;margin:16px 24px 0;width:calc(100% - 48px);max-width:440px;position:relative;z-index:1}
+    .sec{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#ff6b35;margin-bottom:14px}
+    .badge{display:inline-block;padding:3px 10px;background:rgba(255,107,53,.12);border:1px solid rgba(255,107,53,.25);border-radius:20px;font-size:11px;font-weight:700;color:#ff6b35;margin-bottom:14px}
+    .desc{font-size:14px;color:rgba(255,255,255,.45);line-height:1.7;margin-bottom:18px}
+
+    /* BUTTONS */
+    .btn{width:100%;padding:16px;border:none;border-radius:14px;font-family:'Baloo 2',sans-serif;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:9px;transition:all .2s;margin-top:10px}
+    .btn:first-child{margin-top:0}
+    .btn-orange{background:linear-gradient(135deg,#ff6b35,#ff9a35);color:#fff;box-shadow:0 6px 20px rgba(255,107,53,.3)}
+    .btn-orange:active{transform:scale(.98)}
+    .btn-grey{background:rgba(255,255,255,.07);color:rgba(255,255,255,.75);border:1px solid rgba(255,255,255,.1);font-size:14px}
+    .btn-green{background:linear-gradient(135deg,#00c896,#00e5b0);color:#0a2a1f;box-shadow:0 8px 25px rgba(0,200,150,.3);font-size:17px;font-weight:800;padding:20px}
+    .btn-green:active{transform:scale(.98)}
+    .btn-wa{background:linear-gradient(135deg,#25d366,#1da851);color:#fff;box-shadow:0 6px 20px rgba(37,211,102,.25);font-size:15px}
+    .btn-red{background:rgba(255,60,60,.12);color:#ff7070;border:1px solid rgba(255,60,60,.25);font-size:13px}
+
+    /* INPUTS */
+    .lbl{font-size:13px;color:rgba(255,255,255,.5);font-weight:600;display:block;margin-bottom:6px;margin-top:16px}
+    .inp{width:100%;padding:13px 15px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:12px;color:#fff;font-family:'Baloo 2',sans-serif;font-size:14px;outline:none}
+    .inp:focus{border-color:rgba(255,107,53,.5)}
+    .inp::placeholder{color:rgba(255,255,255,.22)}
+
+    /* STATUS */
+    .status-ok{background:rgba(0,200,150,.08);border:1px solid rgba(0,200,150,.2);border-radius:14px;padding:14px;display:flex;align-items:center;gap:12px;margin-top:16px}
+    .s-icon{width:36px;height:36px;background:rgba(0,200,150,.15);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+    .s-title{font-size:14px;color:#00c896;font-weight:700;display:block;margin-bottom:2px}
+    .s-sub{font-size:12px;color:rgba(255,255,255,.4)}
+
+    /* QR OUTPUT */
+    .qr-box{display:flex;flex-direction:column;align-items:center;padding:20px;background:rgba(255,255,255,.03);border-radius:18px;border:1px dashed rgba(255,255,255,.1);margin-top:18px}
+    .qr-box img{border-radius:10px;border:7px solid #fff}
+    .qr-note{margin-top:12px;font-size:11px;color:rgba(255,255,255,.3);text-align:center}
+    .link-row{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:11px;padding:11px 13px;margin-top:12px}
+    .link-txt{flex:1;font-size:11px;color:rgba(255,255,255,.35);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .cpbtn{padding:6px 12px;background:rgba(255,107,53,.15);border:1px solid rgba(255,107,53,.3);border-radius:8px;color:#ff6b35;font-size:11px;font-weight:700;cursor:pointer;font-family:'Baloo 2',sans-serif;white-space:nowrap}
+
+    /* STEPS */
+    .steps .step{display:flex;align-items:flex-start;gap:12px;padding:13px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+    .steps .step:last-child{border:none}
+    .sn{width:30px;height:30px;background:rgba(255,107,53,.12);border:1px solid rgba(255,107,53,.25);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#ff6b35;flex-shrink:0}
+    .st{font-size:14px;font-weight:700;margin-bottom:3px}
+    .sd{font-size:12px;color:rgba(255,255,255,.38);line-height:1.5}
+
+    /* SCANNER SECTION */
+    .scan-methods{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:4px}
+    .scan-opt{padding:16px 10px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:16px;text-align:center;cursor:pointer;transition:all .2s;font-family:'Baloo 2',sans-serif}
+    .scan-opt:active{transform:scale(.97)}
+    .scan-opt .ico{font-size:30px;display:block;margin-bottom:6px}
+    .scan-opt .otitle{font-size:13px;font-weight:700;color:#fff}
+    .scan-opt .osub{font-size:11px;color:rgba(255,255,255,.35);margin-top:2px}
+    .scan-opt.active-opt{background:rgba(255,107,53,.1);border-color:rgba(255,107,53,.35)}
+
+    #qr-reader{width:100%;border-radius:14px;overflow:hidden}
+    #qr-reader video{border-radius:14px}
+    #qr-reader img{display:none!important}
+    .scanner-live{background:rgba(255,255,255,.03);border:2px solid rgba(255,107,53,.3);border-radius:18px;padding:14px;overflow:hidden;margin-top:12px}
+    .scan-hint{text-align:center;font-size:12px;color:rgba(255,255,255,.35);margin-top:8px}
+
+    .scan-done{background:rgba(0,200,150,.07);border:1px solid rgba(0,200,150,.2);border-radius:14px;padding:13px;display:flex;align-items:center;gap:10px;margin-top:12px}
+
+    .dest-found{background:rgba(0,200,150,.07);border:1px solid rgba(0,200,150,.2);border-radius:16px;padding:16px;margin-bottom:16px}
+    .dest-lbl{font-size:10px;font-weight:700;color:#00c896;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px}
+    .dest-val{font-size:14px;font-weight:600;color:rgba(255,255,255,.85);font-family:monospace;word-break:break-all}
+
+    .divider{text-align:center;color:rgba(255,255,255,.22);font-size:12px;margin:14px 0;position:relative}
+    .divider::before,.divider::after{content:'';position:absolute;top:50%;width:40%;height:1px;background:rgba(255,255,255,.07)}
+    .divider::before{left:0}.divider::after{right:0}
+
+    /* TOAST */
+    .toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:#00c896;color:#0a2a1f;padding:11px 22px;border-radius:50px;font-weight:700;font-size:13px;z-index:100;display:none;white-space:nowrap}
+    .toast.show{display:block;animation:fadeUp .3s ease}
+    @keyframes fadeUp{from{opacity:0;transform:translateX(-50%) translateY(8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+
+    .hidden{display:none!important}
+    .mt8{margin-top:8px}
+    .hint{text-align:center;font-size:11px;color:rgba(255,255,255,.28);margin-top:12px}
+
+    /* Loading */
+    .loading{display:flex;flex-direction:column;align-items:center;gap:10px;padding:18px;color:rgba(255,255,255,.45);font-size:13px}
+    .spinner{width:44px;height:44px;border:3px solid rgba(255,107,53,.2);border-top-color:#ff6b35;border-radius:50%;animation:spin .8s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+  </style>
+</head>
+<body>
+<div class="app">
+  <div class="bg1"></div><div class="bg2"></div>
+
+  <div class="header">
+    <div class="logo">
+      <div class="logo-icon">🏠</div>
+      <span class="logo-text">GharTak</span>
+    </div>
+    <div class="tagline">Ab koi address confusion nahi</div>
+  </div>
+
+  <div class="tab-bar">
+    <button class="tab active" onclick="showTab('customer')">🏠 Ghar Wala</button>
+    <button class="tab" onclick="showTab('delivery')">🛵 Delivery Boy</button>
+  </div>
+
+  <!-- ===== CUSTOMER TAB ===== -->
+  <div id="tab-customer">
+    <div class="card">
+      <div class="badge">STEP 1</div>
+      <div class="sec">Apni Location Save Karo</div>
+      <p class="desc">Apne ghar ke andar ya bahar khade hokar button dabaao. GPS se exact location capture ho jaayegi.</p>
+
+      <div id="c-idle">
+        <button class="btn btn-orange" onclick="saveLocation()">📍 Abhi Location Save Karo</button>
+      </div>
+
+      <div id="c-loading" class="loading hidden">
+        <div class="spinner"></div>
+        <span>GPS dhundh raha hai...</span>
+      </div>
+
+      <div id="c-saved" class="hidden">
+        <div class="status-ok">
+          <div class="s-icon">✅</div>
+          <div>
+            <span class="s-title">Location Save Ho Gayi!</span>
+            <span class="s-sub" id="c-coords"></span>
+          </div>
+        </div>
+        <label class="lbl">Landmark add karo (optional)</label>
+        <input class="inp" id="landmark" placeholder="Jaise: Neele gate wala ghar, SBI ATM ke paas..." oninput="updateQR()"/>
+        <button class="btn btn-grey" onclick="saveLocation()">🔄 Dobara Location Lena</button>
+      </div>
+    </div>
+
+    <div class="card hidden" id="qr-card">
+      <div class="badge">STEP 2</div>
+      <div class="sec">QR Code & Link Ready Hai!</div>
+
+      <div class="qr-box">
+        <img id="qr-img" src="" width="200" height="200" alt="QR"/>
+        <div class="qr-note">Delivery boy ko ye image share karo ya door pe chipkao</div>
+      </div>
+
+      <div class="link-row">
+        <span class="link-txt" id="link-txt"></span>
+        <button class="cpbtn" onclick="copyLink()">📋 Copy</button>
+      </div>
+
+      <button class="btn btn-wa" onclick="shareWA()" style="margin-top:14px">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        WhatsApp Pe Share Karo
+      </button>
+
+      <button class="btn btn-grey" onclick="downloadQR()">⬇️ QR Image Download Karo</button>
+    </div>
+
+    <div class="card" id="how-card">
+      <div class="sec">Kaise Kaam Karta Hai?</div>
+      <div class="steps">
+        <div class="step"><div class="sn">1</div><div><div class="st">Ghar pe khade hokar location save karo</div><div class="sd">GPS se exact point capture hota hai, koi address likhne ki zaroorat nahi</div></div></div>
+        <div class="step"><div class="sn">2</div><div><div class="st">QR Code aur Link milta hai</div><div class="sd">WhatsApp pe share karo, door pe chipkao ya order note mein likho</div></div></div>
+        <div class="step"><div class="sn">3</div><div><div class="st">Delivery boy scan kare</div><div class="sd">Direct navigation shuru, ghar ke bahar aake call kare — bas!</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== DELIVERY BOY TAB ===== -->
+  <div id="tab-delivery" class="hidden">
+    <div class="card">
+      <div class="sec">QR Code Se Navigate Karo</div>
+
+      <!-- 3 OPTIONS -->
+      <div id="d-options">
+        <div class="scan-methods">
+          <!-- Gallery Upload -->
+          <div class="scan-opt" onclick="startGallery()">
+            <span class="ico">🖼️</span>
+            <div class="otitle">Gallery Se</div>
+            <div class="osub">Phone mein saved QR</div>
+          </div>
+          <!-- Camera Scan -->
+          <div class="scan-opt" onclick="startCamera()">
+            <span class="ico">📷</span>
+            <div class="otitle">Camera Se</div>
+            <div class="osub">Paper ya screen scan</div>
+          </div>
+        </div>
+
+        <div class="divider">ya link paste karo</div>
+
+        <input class="inp" id="d-link-inp" placeholder="https://www.google.com/maps/dir/..."/>
+        <button class="btn btn-orange mt8" onclick="parseManual()">🗺️ Link Se Address Dhundho</button>
+      </div>
+
+      <!-- Hidden file input for gallery -->
+      <input type="file" id="qr-file-inp" accept="image/*" class="hidden" onchange="scanFromFile(event)"/>
+
+      <!-- Camera scanner -->
+      <div id="d-camera" class="hidden">
+        <div class="scanner-live">
+          <div id="qr-reader"></div>
+          <div class="scan-hint">📷 QR Code camera ke saamne rakho</div>
+        </div>
+        <button class="btn btn-red" onclick="stopCamera()">✕ Camera Band Karo</button>
+      </div>
+
+      <!-- Scan result -->
+      <div id="d-scan-done" class="hidden">
+        <div class="scan-done">
+          <span style="font-size:22px">✅</span>
+          <div>
+            <div style="font-size:14px;font-weight:700;color:#00c896">QR Scan Ho Gaya!</div>
+            <div style="font-size:12px;color:rgba(255,255,255,.4)">Location mil gayi — ab navigate karo</div>
+          </div>
+        </div>
+        <button class="btn btn-grey" onclick="resetDelivery()">🔄 Dobara Scan Karo</button>
+      </div>
+    </div>
+
+    <!-- NAV CARD -->
+    <div class="card hidden" id="d-nav-card">
+      <div class="dest-found">
+        <div class="dest-lbl">📍 Customer Ka Ghar Mila!</div>
+        <div class="dest-val" id="d-nav-coords"></div>
+      </div>
+      <button class="btn btn-green" onclick="openNav()">🛵 Navigation Shuru Karo</button>
+      <p class="hint">Ghar pahunchne ke baad hi call karo 📞</p>
+    </div>
+
+    <div class="card">
+      <div class="sec">Delivery Boy Ke Liye</div>
+      <div class="steps">
+        <div class="step"><div class="sn">1</div><div><div class="st">Gallery ya Camera se QR scan karo</div><div class="sd">WhatsApp pe aayi QR image gallery se upload karo, ya paper pe chipka QR camera se scan karo</div></div></div>
+        <div class="step"><div class="sn">2</div><div><div class="st">Navigation Shuru Karo dabaao</div><div class="sd">Google Maps seedha customer ke ghar tak le jaayega</div></div></div>
+        <div class="step"><div class="sn">3</div><div><div class="st">Ghar pahuncho, tab call karo</div><div class="sd">Baar baar rasta poochne ki zaroorat nahi!</div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  let savedLat=null,savedLng=null,shareLink='',html5QrCode=null,navDest='';
+
+  /* TAB */
+  function showTab(t){
+    document.getElementById('tab-customer').classList.toggle('hidden',t!=='customer');
+    document.getElementById('tab-delivery').classList.toggle('hidden',t!=='delivery');
+    document.querySelectorAll('.tab').forEach((el,i)=>el.classList.toggle('active',(i===0&&t==='customer')||(i===1&&t==='delivery')));
+    if(t==='customer') stopCamera();
+  }
+
+  /* CUSTOMER - SAVE LOCATION */
+  function saveLocation(){
+    if(!navigator.geolocation){alert('Browser location support nahi karta.');return}
+    show('c-loading'); hide('c-idle'); hide('c-saved'); hide('qr-card'); hide('how-card');
+    navigator.geolocation.getCurrentPosition(pos=>{
+      savedLat=pos.coords.latitude.toFixed(6);
+      savedLng=pos.coords.longitude.toFixed(6);
+      document.getElementById('c-coords').textContent=savedLat+'° N, '+savedLng+'° E';
+      hide('c-loading'); show('c-saved'); updateQR();
+    },()=>{
+      alert('Location allow karo — browser settings mein jaake location permission do.');
+      hide('c-loading'); show('c-idle');
+    },{enableHighAccuracy:true,timeout:10000});
+  }
+
+  function updateQR(){
+    if(!savedLat) return;
+    shareLink='https://www.google.com/maps/dir/?api=1&destination='+savedLat+','+savedLng+'&travelmode=driving';
+    const qd=encodeURIComponent(shareLink);
+    document.getElementById('qr-img').src='https://api.qrserver.com/v1/create-qr-code/?size=220x220&data='+qd+'&bgcolor=ffffff&color=0f1923&margin=12';
+    document.getElementById('link-txt').textContent=shareLink;
+    show('qr-card'); hide('how-card');
+  }
+
+  function copyLink(){
+    navigator.clipboard.writeText(shareLink).then(()=>toast('✅ Link Copy Ho Gaya!'));
+  }
+
+  function shareWA(){
+    const lm=document.getElementById('landmark').value;
+    const msg='GharTak pe mere ghar ka address save hai!'+(lm?'\n🏷️ '+lm:'')+'\n\n📍 Navigate karne ke liye:\n'+shareLink;
+    window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
+  }
+
+  function downloadQR(){
+    const src=document.getElementById('qr-img').src;
+    if(!src) return;
+    const a=document.createElement('a');
+    a.href=src; a.download='GharTak-QR.png'; a.target='_blank'; a.click();
+    toast('📥 QR Download Shuru Ho Gaya!');
+  }
+
+  /* DELIVERY - GALLERY */
+  function startGallery(){
+    document.getElementById('qr-file-inp').click();
+  }
+
+  function scanFromFile(e){
+    const file=e.target.files[0];
+    if(!file) return;
+    const scanner=new Html5Qrcode('qr-reader-hidden');
+    scanner.scanFile(file,true).then(result=>{
+      scanner.clear();
+      handleResult(result);
+      show('d-scan-done');
+    }).catch(()=>{
+      scanner.clear();
+      toast('❌ QR nahi mila — clear image try karo');
+    });
+    e.target.value='';
+  }
+
+  /* DELIVERY - CAMERA */
+  function startCamera(){
+    hide('d-options'); show('d-camera'); hide('d-scan-done'); hide('d-nav-card');
+    html5QrCode=new Html5Qrcode('qr-reader');
+    html5QrCode.start(
+      {facingMode:'environment'},
+      {fps:10,qrbox:{width:240,height:240}},
+      result=>{stopCamera(); handleResult(result); show('d-scan-done');},
+      ()=>{}
+    ).catch(()=>{
+      alert('Camera permission do — Settings > Chrome > Permissions > Camera > Allow');
+      stopCamera();
+    });
+  }
+
+  function stopCamera(){
+    if(html5QrCode){html5QrCode.stop().catch(()=>{});html5QrCode=null;}
+    hide('d-camera'); show('d-options');
+  }
+
+  /* DELIVERY - MANUAL LINK */
+  function parseManual(){
+    const inp=document.getElementById('d-link-inp').value.trim();
+    if(!inp){toast('⚠️ Pehle link paste karo');return}
+    processLink(inp);
+  }
+
+  /* PROCESS RESULT */
+  function handleResult(text){
+    processLink(text);
+  }
+
+  function processLink(input){
+    try{
+      const url=new URL(input);
+      const dest=url.searchParams.get('destination');
+      if(dest){showNav(dest);return}
+    }catch(e){}
+    const m=input.match(/([-\d.]+),([-\d.]+)/);
+    if(m){showNav(m[1]+','+m[2]);}
+    else{toast('❌ Valid GharTak link nahi hai');}
+  }
+
+  function showNav(dest){
+    navDest=dest;
+    document.getElementById('d-nav-coords').textContent=dest;
+    show('d-nav-card');
+    document.getElementById('d-nav-card').scrollIntoView({behavior:'smooth'});
+  }
+
+  function openNav(){
+    window.open('https://www.google.com/maps/dir/?api=1&destination='+navDest+'&travelmode=driving','_blank');
+  }
+
+  function resetDelivery(){
+    hide('d-scan-done'); hide('d-nav-card'); show('d-options');
+    navDest='';
+  }
+
+  /* UTILS */
+  function show(id){document.getElementById(id).classList.remove('hidden')}
+  function hide(id){document.getElementById(id).classList.add('hidden')}
+  function toast(msg){
+    const t=document.getElementById('toast');
+    t.textContent=msg; t.classList.add('show');
+    setTimeout(()=>t.classList.remove('show'),2500);
+  }
+</script>
+
+<!-- Hidden div for file scanning -->
+<div id="qr-reader-hidden" style="display:none"></div>
+
+</body>
+</html>
